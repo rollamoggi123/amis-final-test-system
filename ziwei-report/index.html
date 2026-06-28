@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>命宮與身宮完整互動式分析報告</title>
+  <style>
+    :root {
+      --ink:#1d2633; --muted:#667386; --paper:#faf8f3; --panel:#fff;
+      --line:#dad4c8; --good:#237b65; --ok:#4e7fb8; --mid:#9b7a24;
+      --bad:#b55a35; --worst:#9d334b; --violet:#7460a8;
+      --shadow:0 18px 44px rgba(28,35,48,.12);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Microsoft JhengHei","Noto Sans TC",system-ui,sans-serif;color:var(--ink);background:linear-gradient(135deg,#fbfaf7,#eef5f4 52%,#f7efe2);line-height:1.65}
+    header{padding:30px clamp(18px,4vw,48px) 18px}
+    h1{margin:0;font-size:clamp(28px,4vw,48px);line-height:1.15;letter-spacing:0}
+    .lead{max-width:980px;color:var(--muted);font-size:17px;margin:10px 0 0}
+    .wrap{padding:0 clamp(18px,4vw,48px) 44px;display:grid;gap:18px}
+    .panel{background:rgba(255,255,255,.88);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow)}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .summary .box{padding:16px;border-radius:10px;background:#fff;border:1px solid var(--line)}
+    .box b{display:block;font-size:18px;margin-bottom:5px}.box span{color:var(--muted)}
+    .layout{display:grid;grid-template-columns:minmax(360px,1.2fr) minmax(320px,.8fr);gap:18px;align-items:start}
+    .tabs,.filters{display:flex;gap:8px;flex-wrap:wrap;padding:14px;border-bottom:1px solid var(--line)}
+    button{font:inherit;border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 11px;cursor:pointer;color:var(--ink)}
+    button.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+    .view{display:none;padding:16px}.view.active{display:block}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));gap:10px}
+    .card{text-align:left;background:#fff;border:1px solid var(--line);border-left:7px solid var(--mid);border-radius:10px;padding:13px;min-height:132px}
+    .card strong{display:block;font-size:17px}.card small{display:block;color:var(--muted);margin-top:4px}
+    .verify{display:inline-flex;align-items:center;border-radius:999px;padding:3px 8px;font-size:12px;font-weight:800;margin-left:6px;background:#edf8f3;color:#1f6d59;border:1px solid #b8ded0}
+    .verify.warn{background:#fff6e8;color:#8a5e14;border-color:#e5c47e}
+    .rate{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:26px;border-radius:8px;color:#fff;font-weight:800;margin:0 0 8px}
+    .r-優{background:var(--good)}.r-好{background:var(--ok)}.r-可{background:var(--mid)}.r-差{background:var(--bad)}.r-劣{background:var(--worst)}
+    .card[data-rate="優"]{border-left-color:var(--good)}.card[data-rate="好"]{border-left-color:var(--ok)}.card[data-rate="可"]{border-left-color:var(--mid)}.card[data-rate="差"]{border-left-color:var(--bad)}.card[data-rate="劣"]{border-left-color:var(--worst)}
+    .detail{position:sticky;top:14px;padding:18px}
+    .detail h2{font-size:30px;line-height:1.18;margin:2px 0 8px}
+    .kicker{color:var(--muted);font-size:14px}.summary-text{font-size:17px;margin:0 0 12px}
+    .mini{border:1px solid var(--line);background:#fff;border-radius:10px;padding:12px;margin-top:10px}.mini h3{margin:0 0 6px;font-size:16px}.mini p,.mini ul{margin:0;color:#3f4855}.mini ul{padding-left:1.2rem}
+    .fact-box{border-style:solid}.interpret-box{border-style:dashed;background:#fffefa}
+    .legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.legend span{padding:6px 9px;border-radius:8px;color:#fff;font-weight:800}
+    .flow{padding:18px}.flow h2,.report h2{margin:0 0 12px}
+    .steps{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+    .step{position:relative;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;min-height:146px}
+    .step b{display:block}.step p{margin:6px 0 0;color:var(--muted);font-size:14px}
+    .step:after{content:"";position:absolute;right:-10px;top:50%;width:20px;height:2px;background:var(--line)}
+    .step:last-child:after{display:none}
+    .report{padding:18px}.accordion{border:1px solid var(--line);background:#fff;border-radius:10px;margin-top:10px;overflow:hidden}
+    .accordion summary{cursor:pointer;font-weight:800;padding:13px 15px;list-style:none;display:flex;justify-content:space-between;gap:12px}
+    .accordion summary:after{content:"+";color:var(--muted)}.accordion[open] summary:after{content:"-"}
+    .body{padding:0 15px 15px;color:#3f4855}.body h3{margin:14px 0 6px;color:var(--ink)}.body p{margin:8px 0}.body ul{margin:6px 0 10px;padding-left:1.2rem}
+    .callout{border-left:6px solid var(--violet);background:#f5f1ff;border-radius:10px;padding:12px 14px;margin:12px 0;color:#3d345e}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden}th,td{border:1px solid var(--line);padding:9px;text-align:left;vertical-align:top}th{background:#f5f2eb}
+    .trend{padding:18px}
+    .trend-head{display:flex;justify-content:space-between;gap:16px;align-items:end;flex-wrap:wrap;margin-bottom:12px}
+    .trend-head h2{margin:0}.trend-head p{margin:4px 0 0;color:var(--muted);max-width:780px}
+    .chart-card{background:linear-gradient(180deg,#ffffff,#fbf7ef);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto}
+    .trend svg{width:100%;min-width:760px;height:auto;display:block}
+    .chart-label{font-size:13px;fill:#566174}.axis-label{font-size:12px;fill:#6f7988}.curve-label{font-size:14px;font-weight:800}
+    .trend-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+    .trend-note{background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px}.trend-note h3{margin:0 0 6px}.trend-note p{margin:0;color:#3f4855}
+    .bar{height:10px;background:#ece7dd;border-radius:999px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;border-radius:999px}
+    .bar.ming i{background:var(--worst)}.bar.career i{background:var(--bad)}.bar.shen i{background:var(--good)}
+    .dual-core{padding:18px}
+    .core-map{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
+    .core-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:15px;position:relative;overflow:hidden}
+    .core-card:before{content:"";position:absolute;inset:0 0 auto;height:6px;background:var(--good)}
+    .core-card.sunmoon:before{background:linear-gradient(90deg,#d99427,#586fb3)}
+    .core-card.fuxiang:before{background:linear-gradient(90deg,#237b65,#7460a8)}
+    .core-card h3{margin:4px 0 7px;font-size:21px}.core-card p{margin:8px 0;color:#3f4855}.core-card ul{margin:8px 0 0;padding-left:1.2rem;color:#3f4855}
+    .mini-flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+    .mini-flow div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;min-height:96px}
+    .mini-flow b{display:block;color:var(--ink)}.mini-flow span{color:var(--muted);font-size:13px}
+    @media(max-width:980px){.summary,.layout,.steps,.trend-grid,.core-map,.mini-flow{grid-template-columns:1fr}.detail{position:static}.grid{grid-template-columns:1fr}.step:after{display:none}}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>命宮與身宮完整互動式分析報告</h1>
+    <p class="lead">主軸：命宮提供一生的原始動能與課題；40 歲後身宮逐漸接手，將命宮的破局力導入天府身宮的資源、制度、合作與收成。以下以「優、好、可、差、劣」呈現每個格位的現代含義、盲點與解法。</p>
+    <div class="legend">
+      <span class="r-優">優：可作為主力優勢</span>
+      <span class="r-好">好：有利但需經營</span>
+      <span class="r-可">可：中性工具，看用法</span>
+      <span class="r-差">差：明顯風險，需管控</span>
+      <span class="r-劣">劣：高耗損，需避險</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="summary">
+      <div class="box"><b>命宮</b><span>酉宮：紫微旺、貪狼化忌、鈴星得。強而不穩，負責破局。</span></div>
+      <div class="box"><b>身宮</b><span>未宮：天府廟，同夫妻宮。40 歲後漸入佳境，負責收成。</span></div>
+      <div class="box"><b>目前大限</b><span>43-52 歲走丑宮官祿：廉貞、七殺廟、擎羊廟。事業攻堅。</span></div>
+      <div class="box"><b>總判斷</b><span>前半生靠命宮開局；後半生靠身宮把成果資產化、品牌化、制度化。</span></div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <nav class="tabs">
+          <button class="tab active" data-view="ming">命宮格位</button>
+          <button class="tab" data-view="shen">身宮格位</button>
+          <button class="tab" data-view="career">40 後事業</button>
+          <button class="tab" data-view="all">全盤聯動</button>
+        </nav>
+        <div class="filters">
+          <button class="filter active" data-filter="全部">全部</button>
+          <button class="filter" data-filter="優">優</button>
+          <button class="filter" data-filter="好">好</button>
+          <button class="filter" data-filter="可">可</button>
+          <button class="filter" data-filter="差">差</button>
+          <button class="filter" data-filter="劣">劣</button>
+        </div>
+
+        <div id="ming" class="view active"><div class="grid" id="grid-ming"></div></div>
+        <div id="shen" class="view"><div class="grid" id="grid-shen"></div></div>
+        <div id="career" class="view"><div class="grid" id="grid-career"></div></div>
+        <div id="all" class="view"><div class="grid" id="grid-all"></div></div>
+      </div>
+
+      <aside class="detail panel">
+        <div class="kicker" id="kicker">目前選取</div>
+        <h2 id="title">命宮與身宮總覽</h2>
+        <p class="summary-text" id="desc">點選左側任一格位，可展開該格位的底層機制、現代優勢、盲點與具體解法。</p>
+        <div class="mini fact-box"><h3>命盤結構（事實）</h3><p id="structure">命宮是火，身宮是爐。命宮給企圖心、欲望與突破力；身宮把這些力量收進資源、制度與長期成果。</p></div>
+        <div class="mini interpret-box"><h3>現代應用建議（詮釋）</h3><p id="application">適合把能力轉成可累積的作品、流程、資源與長期合作；實際領域仍需依個人現況調整。</p></div>
+        <div class="mini"><h3>盲點與風險</h3><p id="risk">最怕用前半生命宮的焦慮去衝後半生，導致努力很多但留不住成果。</p></div>
+        <div class="mini"><h3>具體解法</h3><ul id="actions"><li>所有成果都要留下文件、作品、案例或資產。</li><li>合作、感情、金錢分開評估。</li><li>用制度承接爆發力。</li></ul></div>
+      </aside>
+    </section>
+
+    <section class="flow panel">
+      <h2>Step by Step：40 歲後如何看盤的轉變</h2>
+      <div class="steps">
+        <div class="step"><b>Step 1<br>命宮底色</b><p>紫微貪狼化忌鈴星：高企圖、高欲望、高波動。</p></div>
+        <div class="step"><b>Step 2<br>命宮課題</b><p>想證明自己、感情人際牽動、公開評價焦慮。</p></div>
+        <div class="step"><b>Step 3<br>40 後看身宮</b><p>未宮天府廟：資源、穩定、資產、合作成為重心。</p></div>
+        <div class="step"><b>Step 4<br>身宮加分</b><p>日月夾身、昌曲三合、天相三合，貴人與學術名聲加強。</p></div>
+        <div class="step"><b>Step 5<br>大限觸發</b><p>43-52 走官祿：廉殺羊，事業攻堅與權威建立。</p></div>
+        <div class="step"><b>Step 6<br>收成策略</b><p>把攻堅成果轉成論文、課程、品牌、收入與長期合作。</p></div>
+      </div>
+    </section>
+
+    <section class="trend panel">
+      <div class="trend-head">
+        <div>
+          <h2>曲線與趨勢表：命宮、財官、身宮三條力量如何交接</h2>
+          <p>這張圖不是算分數，而是把命盤邏輯視覺化：命宮的破局力早年強、財官攻堅在 43-52 歲被大限拉高、身宮天府在 40 歲後逐步成為主導，形成「破局 → 攻堅 → 收成」的曲線。</p>
+        </div>
+      </div>
+      <div class="chart-card">
+        <svg viewBox="0 0 980 430" role="img" aria-label="命宮、財官、身宮趨勢曲線">
+          <defs>
+            <linearGradient id="mingFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#9d334b" stop-opacity=".22"/>
+              <stop offset="1" stop-color="#9d334b" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="careerFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#b55a35" stop-opacity=".20"/>
+              <stop offset="1" stop-color="#b55a35" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="shenFill" x1="0" x2="0" y1="0" y2="1">
+              <stop offset="0" stop-color="#237b65" stop-opacity=".24"/>
+              <stop offset="1" stop-color="#237b65" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <rect x="0" y="0" width="980" height="430" rx="16" fill="#fffdf8"/>
+          <g stroke="#ded8ce" stroke-width="1">
+            <line x1="80" y1="60" x2="930" y2="60"/><line x1="80" y1="130" x2="930" y2="130"/>
+            <line x1="80" y1="200" x2="930" y2="200"/><line x1="80" y1="270" x2="930" y2="270"/>
+            <line x1="80" y1="340" x2="930" y2="340"/>
+          </g>
+          <line x1="80" y1="340" x2="930" y2="340" stroke="#9aa2ad" stroke-width="2"/>
+          <line x1="80" y1="50" x2="80" y2="340" stroke="#9aa2ad" stroke-width="2"/>
+          <g class="axis-label">
+            <text x="68" y="64" text-anchor="end">強</text>
+            <text x="68" y="204" text-anchor="end">中</text>
+            <text x="68" y="344" text-anchor="end">弱</text>
+            <text x="80" y="370" text-anchor="middle">20</text>
+            <text x="250" y="370" text-anchor="middle">30</text>
+            <text x="420" y="370" text-anchor="middle">40</text>
+            <text x="590" y="370" text-anchor="middle">50</text>
+            <text x="760" y="370" text-anchor="middle">60</text>
+            <text x="930" y="370" text-anchor="middle">70+</text>
+          </g>
+          <path d="M80 120 C190 80, 300 72, 420 105 C520 132, 640 178, 760 210 C835 230, 890 240, 930 248 L930 340 L80 340 Z" fill="url(#mingFill)"/>
+          <path d="M80 120 C190 80, 300 72, 420 105 C520 132, 640 178, 760 210 C835 230, 890 240, 930 248" fill="none" stroke="#9d334b" stroke-width="5" stroke-linecap="round"/>
+          <path d="M80 255 C210 240, 325 220, 420 168 C505 90, 590 66, 675 112 C760 156, 850 190, 930 215 L930 340 L80 340 Z" fill="url(#careerFill)"/>
+          <path d="M80 255 C210 240, 325 220, 420 168 C505 90, 590 66, 675 112 C760 156, 850 190, 930 215" fill="none" stroke="#b55a35" stroke-width="5" stroke-linecap="round"/>
+          <path d="M80 285 C220 275, 330 245, 420 190 C520 130, 625 90, 760 68 C830 60, 890 58, 930 55 L930 340 L80 340 Z" fill="url(#shenFill)"/>
+          <path d="M80 285 C220 275, 330 245, 420 190 C520 130, 625 90, 760 68 C830 60, 890 58, 930 55" fill="none" stroke="#237b65" stroke-width="5" stroke-linecap="round"/>
+          <line x1="420" y1="48" x2="420" y2="348" stroke="#7460a8" stroke-width="2" stroke-dasharray="8 7"/>
+          <line x1="590" y1="48" x2="590" y2="348" stroke="#7460a8" stroke-width="2" stroke-dasharray="8 7"/>
+          <g class="chart-label">
+            <text x="424" y="42">40 歲後：身宮開始接手</text>
+            <text x="594" y="42">43-52：官祿大限攻堅</text>
+          </g>
+          <g class="curve-label">
+            <text x="110" y="92" fill="#9d334b">命宮破局力</text>
+            <text x="520" y="82" fill="#b55a35">財官攻堅力</text>
+            <text x="760" y="48" fill="#237b65">身宮收成力</text>
+          </g>
+          <g class="chart-label">
+            <text x="108" y="395" fill="#9d334b">● 命宮：紫微貪狼化忌鈴星，早年強而耗</text>
+            <text x="392" y="395" fill="#b55a35">● 財官：破軍化祿天馬 + 廉殺羊，43-52 衝高</text>
+            <text x="720" y="395" fill="#237b65">● 身宮：天府日月夾身，中晚年漸入佳境</text>
+          </g>
+        </svg>
+      </div>
+      <div class="trend-grid">
+        <div class="trend-note">
+          <h3>曲線解讀</h3>
+          <p>命宮曲線不是變差，而是從主導退為底層引擎；財官曲線在目前大限升高，代表事業攻堅；身宮曲線 40 歲後上升，代表資源、穩定、品牌與合作開始成為真正的主軸。</p>
+        </div>
+        <div class="trend-note">
+          <h3>決策公式</h3>
+          <p>任何選擇都問三件事：它有沒有累積作品？有沒有形成資產？有沒有讓關係與合作更穩？若沒有，多半是在消耗命宮焦慮；若有，就是走身宮天府的好運。</p>
+        </div>
+      </div>
+      <table style="margin-top:14px">
+        <thead><tr><th>階段</th><th>主導力量</th><th>趨勢強度</th><th>主要任務</th><th>風險與修正</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>20-32</td><td>命宮破局力</td>
+            <td>命宮高、身宮低<div class="bar ming"><i style="width:82%"></i></div></td>
+            <td>探索能力、建立企圖、累積初步專業。</td>
+            <td>容易用情緒與欲望推動選擇，需要避免衝動承諾。</td>
+          </tr>
+          <tr>
+            <td>33-42</td><td>轉折準備期</td>
+            <td>命宮仍強、身宮上升<div class="bar shen"><i style="width:48%"></i></div></td>
+            <td>把能力整理成方向，開始重視穩定與資源。</td>
+            <td>若仍追求刺激，會感覺努力很多但留不住成果。</td>
+          </tr>
+          <tr>
+            <td>43-52</td><td>財官攻堅 + 身宮承接</td>
+            <td>事業高峰、身宮快速上升<div class="bar career"><i style="width:92%"></i></div></td>
+            <td>事業定位重塑、制度攻堅、專業權威建立。</td>
+            <td>合約、權責、職場衝突要控管；攻堅後一定要留下作品與資產。</td>
+          </tr>
+          <tr>
+            <td>53-62</td><td>身宮收成力</td>
+            <td>身宮高、命宮退為引擎<div class="bar shen"><i style="width:86%"></i></div></td>
+            <td>經營品牌、穩定合作、資產配置、學術/文化成果轉譯。</td>
+            <td>避免孤高封閉，需固定公開輸出與經營高品質人脈。</td>
+          </tr>
+          <tr>
+            <td>63+</td><td>府相系統成熟</td>
+            <td>收成穩定<div class="bar shen"><i style="width:94%"></i></div></td>
+            <td>守成、傳承、教學、文化/研究資產整理。</td>
+            <td>重點是健康節奏與資源保守管理，不再靠燃燒式開創。</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="dual-core panel">
+      <h2>中晚年雙核心：日月夾身宮 × 府相系統</h2>
+      <p class="lead" style="margin-top:4px">這兩個結構是 40 歲後的關鍵，不是單獨看吉格，而是看它們如何修正命宮的高耗損，並把前半生的破局力轉成可持續成果。</p>
+      <div class="core-map">
+        <article class="core-card sunmoon">
+          <h3>日月夾身宮：明暗資源護航</h3>
+          <p><strong>成立條件：</strong>身宮在未，午宮太陽旺、申宮太陰化科，左右夾住未宮身宮。</p>
+          <ul>
+            <li><strong>太陽旺：</strong>公開舞台、名聲、職位、教學、演講、男性/陽性貴人。</li>
+            <li><strong>太陰化科：</strong>研究文書、學術名聲、資料品質、女性貴人、私下支援。</li>
+            <li><strong>核心意義：</strong>台前要被看見，幕後要有扎實資料；兩者一起啟動貴人與晚運。</li>
+          </ul>
+        </article>
+        <article class="core-card fuxiang">
+          <h3>府相系統：資源與制度收成</h3>
+          <p><strong>精準名稱：</strong>宜稱「身宮府相系統」或「天府坐身、天相三合照身」，比硬稱府相朝垣更穩。</p>
+          <ul>
+            <li><strong>天府廟：</strong>資源庫、財庫、穩定、守成、長期合作。</li>
+            <li><strong>天相三合：</strong>制度、秩序、公平、名聲、專業形象。</li>
+            <li><strong>核心意義：</strong>中晚年不是繼續燃燒，而是建立品牌、資產、流程與可複製系統。</li>
+          </ul>
+        </article>
+      </div>
+      <div class="mini-flow">
+        <div><b>1. 太陽給舞台</b><span>公開發表、教學、演講、職位、能見度。</span></div>
+        <div><b>2. 太陰給內容</b><span>研究、文書、論文、資料、學術名聲。</span></div>
+        <div><b>3. 天相給規範</b><span>制度、審查、公平、專業形象。</span></div>
+        <div><b>4. 天府負責收</b><span>資源、收入、合作、資產、生活穩定。</span></div>
+        <div><b>5. 晚運成形</b><span>專業品牌、學術影響力、穩定支持系統。</span></div>
+      </div>
+    </section>
+
+    <section class="report panel">
+      <h2>完整分析報告</h2>
+      <details class="accordion" open>
+        <summary>一、總論：命宮與身宮的分工</summary>
+        <div class="body">
+          <p>命宮不會因為 40 歲後看身宮而消失。命宮是你一生的底層人格、欲望模式與原始反應；身宮是中年後越來越明顯的行動模式與人生重心。</p>
+          <div class="callout">最精準的比喻：命宮是火，身宮是爐。火代表企圖、才華、欲望、突破；爐代表制度、資源、容器、收成。</div>
+          <p>你的命宮很強，但強中帶耗；你的身宮更穩，且能把前半生的開創力轉成資產。因此可判斷為：身宮比命宮漸入佳境。</p>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>二、命宮格位評等總表</summary>
+        <div class="body">
+          <table>
+            <thead><tr><th>格位/格性</th><th>評等</th><th>現代意義</th><th>風險</th></tr></thead>
+            <tbody>
+              <tr><td>紫微坐命酉宮</td><td>好</td><td>有格局感、主導力、不甘平凡。</td><td>容易高標準、難放鬆。</td></tr>
+              <tr><td>紫微貪狼同宮</td><td>好中帶差</td><td>才華、吸引力、跨界力強。</td><td>欲望深，不易滿足。</td></tr>
+              <tr><td>貪狼化忌坐命</td><td>差</td><td>鑽研力強，可轉成專業深度。</td><td>感情、人際、名聲焦慮卡關。</td></tr>
+              <tr><td>鈴星同命</td><td>可中帶差</td><td>反應快，有爆發力。</td><td>波動、急切、突發失控。</td></tr>
+              <tr><td>極居卯酉格</td><td>差中帶優</td><td>高標準、適合高品質專業路線。</td><td>感情低品質不適合，容易孤高。</td></tr>
+              <tr><td>火鈴貪格性</td><td>好中帶險</td><td>有非線性機會、突發收益。</td><td>貪快會變成投資與感情風險。</td></tr>
+              <tr><td>命財官殺破狼聯動</td><td>優中帶劣</td><td>人生靠變動、改革、跨域破局。</td><td>不穩定，需制度接住。</td></tr>
+              <tr><td>天乙拱命</td><td>優</td><td>學識型貴人、外部平台支援。</td><td>要主動發表與申請才會啟動。</td></tr>
+              <tr><td>科權祿會照格性</td><td>好</td><td>制度、專業、貴人推動。</td><td>悶著做則不發動。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>三、身宮格位評等總表</summary>
+        <div class="body">
+          <table>
+            <thead><tr><th>格位/格性</th><th>評等</th><th>現代意義</th><th>風險</th></tr></thead>
+            <tbody>
+              <tr><td>天府廟入身宮</td><td>優</td><td>40 歲後重資源、資產、穩定、守成。</td><td>若仍追刺激，成果留不住。</td></tr>
+              <tr><td>身宮坐夫妻宮</td><td>好中帶考驗</td><td>伴侶、合作、長期關係影響晚運。</td><td>關係不清會耗財耗心。</td></tr>
+              <tr><td>日月夾身宮</td><td>優</td><td>太陽旺、太陰化科夾身，晚運貴人、名聲、公開舞台加分。</td><td>親近圈仍需篩選。</td></tr>
+              <tr><td>文昌文曲三合照身</td><td>優</td><td>文字、學術、研究、發表、文件品質開運。</td><td>做得好但不呈現，機會會少。</td></tr>
+              <tr><td>天相三合身宮</td><td>好</td><td>制度、公平、名聲、專業形象加分。</td><td>太在意評價會壓抑自己。</td></tr>
+              <tr><td>華蓋入身宮</td><td>好中帶孤</td><td>專精、學術、文化、精神性、研究深度。</td><td>孤高、不愛解釋、淺層社交疲乏。</td></tr>
+              <tr><td>天姚入身宮</td><td>可</td><td>成熟魅力、人際吸引、美感與個人品牌。</td><td>魅力與曖昧風險對等，需守界線。</td></tr>
+              <tr><td>天哭入身宮</td><td>可中帶差</td><td>感受力、懷舊、共情與情緒深度。</td><td>容易感傷、想太多、被過去牽動。</td></tr>
+              <tr><td>左輔右弼支援身宮</td><td>可</td><td>左輔在父母、右弼在疾厄，可作間接助力。</td><td>與身宮無直接三合/夾鄰/對宮，不能過度放大。</td></tr>
+              <tr><td>府相系統</td><td>優</td><td>天府管資源，天相管秩序，適合建立長期系統。</td><td>若制度不足，會變成想穩卻不穩。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>四、40 歲後事業判讀流程</summary>
+        <div class="body">
+          <p>40 歲後問事業，第一看大限，第二看本命官祿，第三看身宮如何承接成果。以虛歲看，你已進入 43-52 歲大限；以西曆實歲看，2026 年 9 月 1 日才滿 43 歲。大限走丑宮，丑宮剛好是本命官祿宮，所以這十年事業主場很強。</p>
+          <ul>
+            <li><strong>官祿宮：</strong>廉貞利、七殺廟、擎羊廟。屬於廉殺羊坐官祿，攻堅型事業宮。</li>
+            <li><strong>格位：</strong>七殺入廟、擎羊入廟、羊刃坐官祿、廉殺同宮、廉殺逢羊。</li>
+            <li><strong>現代方向：</strong>研究、制度改革、審查、危機處理、顧問、資料分析、教育政策、專案轉型。</li>
+            <li><strong>風險：</strong>職場硬碰硬、說話太銳、權責不明、扛過重責任。</li>
+            <li><strong>解法：</strong>專業要硬，姿態要柔；方向要敢，合約要細。</li>
+          </ul>
+          <div class="callout">官祿宮負責打硬仗；身宮天府負責把硬仗打出的成果變成長期資源。</div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>五、我的看法：真正的開運策略</summary>
+        <div class="body">
+          <p>這張盤最可惜的走法，是一直用命宮貪狼化忌的焦慮去追下一個目標，做很多、燃燒很多，但沒有把成果留下來。</p>
+          <p>最好的走法，是讓命宮負責破局，讓身宮負責收成。具體而言：論文要變成作品集，教學要變成課程，專案要變成案例，貴人要變成長期合作，收入要變成資產，魅力要變成專業品牌，而不是情緒關係。</p>
+          <ul>
+            <li><strong>優勢主線：</strong>可走知識整理、專業服務、文化語言、教育、跨域整合等方向，實際選擇依個人現況調整。</li>
+            <li><strong>事業主線：</strong>高難度問題、制度改革、專業權威、顧問型或管理型角色。</li>
+            <li><strong>財富主線：</strong>專業能力產品化/服務化、專案制、跨地跨域、穩健資產配置。</li>
+            <li><strong>關係主線：</strong>穩定型伴侶與高品質合作，不適合模糊曖昧或低責任關係。</li>
+            <li><strong>最大避險：</strong>感情、合作、金錢分開；重大承諾設定 72 小時冷卻期。</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>六、分析校正：哪些是嚴格格局，哪些是格性或系統</summary>
+        <div class="body">
+          <p>我的看法是：這張盤的分析方向正確，但必須把「嚴格古典格局」與「現代格性/會照系統」分開，才不會把格局講得太滿，也不會漏掉真正有用的判讀。</p>
+          <table>
+            <thead><tr><th>項目</th><th>我的判斷</th><th>修正後說法</th></tr></thead>
+            <tbody>
+              <tr><td>極居卯酉格</td><td>可成立</td><td>紫微貪狼在酉成立，但要連同貪狼化忌看感情與欲望課題。</td></tr>
+              <tr><td>鈴貪格</td><td>可成立但變質</td><td>有爆發力，但貪狼化忌使其不能只當橫財格，要加風控。</td></tr>
+              <tr><td>科權夾命格</td><td>成立但需斟酌</td><td>申宮太陰化科、戌宮巨門化權左右夾酉命；但巨門陷且同坐地劫，評等宜下修為「可」。</td></tr>
+              <tr><td>化祿會照</td><td>成立但非夾命</td><td>破軍化祿在財帛三合會照命宮，宜說會祿，不宜說夾命。</td></tr>
+              <tr><td>天乙拱命格</td><td>可成立</td><td>天魁在遷移、天鉞在財帛，會照命宮，貴人星有力。</td></tr>
+              <tr><td>殺破狼格</td><td>改稱格性強</td><td>命貪狼、財破軍、官七殺成立，但命宮同時有紫微與化忌，非純粹殺破狼。</td></tr>
+              <tr><td>府相朝垣格</td><td>名稱需保守</td><td>宜稱身宮府相系統：天府坐身、天相三合照身。</td></tr>
+              <tr><td>日月夾身格</td><td>成立</td><td>午太陽旺、申太陰化科夾未身宮，是中晚年加分點。</td></tr>
+              <tr><td>昌曲三合身宮</td><td>成立</td><td>文昌亥、文曲卯，與未身宮成亥卯未三合。</td></tr>
+            </tbody>
+          </table>
+          <div class="callout">為什麼要這樣分析：因為這張盤不是單一吉格取勝，而是「命宮破局、財官攻堅、身宮收成」三段式結構。看懂能量流動，比硬套格名更準。</div>
+          <p>最需要校正的是「鈴貪」與「殺破狼」。鈴貪有突發與爆發，但貪狼化忌會讓爆發變成情緒、投資、感情、人際的波動；殺破狼格性很強，但命宮有紫微主控與貪狼化忌焦慮，所以它不是單純冒險，而是「想在變動中掌控局面、做出格局、證明自己」。</p>
+          <p>因此最精準的判斷是：前半生不能否定命宮，因為命宮提供火力；40 歲後不能停在命宮，因為真正要靠身宮天府把火力收成資源。</p>
+        </div>
+      </details>
+
+      <details class="accordion" open>
+        <summary>七、日月夾身宮與府相系統：本盤中晚年的真正重點</summary>
+        <div class="body">
+          <h3>1. 日月夾身宮：不是日月夾命，而是夾身/夾夫妻宮</h3>
+          <p>你的命宮在酉，所以這不是日月夾命。你的身宮在未，且與夫妻宮同宮；午宮太陽旺、申宮太陰化科，左右包夾未宮，因此成立「日月夾身宮」。它主要影響 40 歲後的人生重心、伴侶與合作品質、中晚年資源整合、公開名聲與私下支援。</p>
+          <p><strong>太陽旺</strong>代表明的資源：公開舞台、職位、名聲、男性或陽性貴人、教學、演講、領導、對外發表。這表示你 40 歲後不能只做幕後，必須把專業拿到光下，透過論文、演講、課程、專業網站、研究成果展示來承接機會。</p>
+          <p><strong>太陰化科</strong>代表暗的資源：文書、研究、財務、女性貴人、細膩支持、學術名聲、資料整理與文件品質。化科讓太陰更偏向學術、名聲、證明與保護，所以你的晚運不是只靠曝光，而是靠高品質資料與研究成果來護航。</p>
+          <div class="callout">日月夾身宮的核心公式：台前有太陽，幕後有太陰，中間由身宮天府收成。</div>
+          <h3>2. 府相系統：比硬稱府相朝垣更精準</h3>
+          <p>「府相朝垣格」若依古典嚴格條件，要非常小心使用。以你的盤來說，更穩健的說法是「身宮府相系統」：天府廟坐身宮/夫妻宮，福德宮天相三合照身宮。這個系統的核心不是暴衝，而是資源管理與制度化。</p>
+          <p><strong>天府</strong>像倉庫，關心的是成果有沒有存下來：穩定收入、長期合作、資產、專業品牌、研究資料庫、課程系統、可複製方法論。<strong>天相</strong>則讓成果被制度承認：專業形象、公平原則、審查標準、合作倫理、名聲管理。</p>
+          <p>所以 40 歲後最忌諱的是：一直做新東西但不整理、一直接任務但不形成品牌、一直幫別人解決問題但自己沒有資產、一直奔波但財庫沒有留下。</p>
+          <h3>3. 兩者合看：名聲、研究、制度、資源形成閉環</h3>
+          <ul>
+            <li><strong>太陽：</strong>讓你走到公開舞台，被看見。</li>
+            <li><strong>太陰化科：</strong>讓你有研究、文書、資料與學術名聲作為根基。</li>
+            <li><strong>天相：</strong>讓你的成果有制度、標準與對外可信度。</li>
+            <li><strong>天府：</strong>把名聲、內容、制度轉成資源、收入、合作與資產。</li>
+          </ul>
+          <p>這正好修正命宮紫微貪狼化忌鈴星的高耗損：命宮容易想證明、想突破、情緒被人際牽動；日月夾身與府相系統則要求你把能量導入公開平台、研究文件、制度流程與穩定資源。</p>
+          <h3>4. 實際建議</h3>
+          <ul>
+            <li>經營公開舞台：論文、演講、課程、專業網站、公開履歷。</li>
+            <li>精修文書研究：申請書、研究計畫、簡報、履歷、作品集都要成為高品質資產。</li>
+            <li>人脈制度化：合作要有分工、時程、成果歸屬與合約。</li>
+            <li>成果資產化：每個研究、教學、專案都留下文章、案例、模板、資料庫或方法論。</li>
+            <li>關係要篩選：身宮在夫妻宮，天府要穩定承擔，不適合模糊曖昧或低責任合作。</li>
+          </ul>
+          <div class="callout">一句話：日月夾身宮是 40 歲後的名聲與貴人護航；府相系統是把名聲、研究、資源變成穩定人生的管理架構。</div>
+        </div>
+      </details>
+
+      <details class="accordion">
+        <summary>八、本版修正紀錄：避免過度套格，分清事實與詮釋</summary>
+        <div class="body">
+          <p>本版新增「命盤結構（事實）」與「現代應用建議（詮釋）」兩層，並在互動卡片加入「已驗證／需斟酌」標籤。目的不是削弱格局，而是讓判讀更精準：有直接三方四正或同宮依據的保留強度，連結較弱或含煞耗的部分則下修。</p>
+          <table>
+            <thead><tr><th>修正項目</th><th>原判讀問題</th><th>本版修正</th><th>原因</th></tr></thead>
+            <tbody>
+              <tr><td>科權夾命</td><td>容易被說成「很漂亮」</td><td>下修為「可」並標記需斟酌</td><td>戌宮巨門化權雖夾命，但巨門陷且同坐地劫，權力與口舌助力帶耗損。</td></tr>
+              <tr><td>左輔右弼支援身宮</td><td>容易被誤解為直接拱身</td><td>下修為「可」</td><td>左輔在父母、右弼在疾厄，與未宮身宮無直接三合、夾鄰或對宮關係。</td></tr>
+              <tr><td>目前大限</td><td>年齡切換不夠清楚</td><td>補上虛歲與西曆實歲</td><td>以虛歲看已入 43-52；以西曆實歲看，2026/9/1 才滿 43。</td></tr>
+              <tr><td>天姚入身宮</td><td>偏向只講魅力</td><td>下修為「可」</td><td>天姚的魅力與曖昧、界線不清風險對等，尤其身宮同夫妻宮。</td></tr>
+              <tr><td>天哭入身宮</td><td>原本漏列</td><td>新增「天哭入身宮」</td><td>天哭在身宮會帶感傷、懷舊、共情與情緒記憶，讓身宮不應被視為全優。</td></tr>
+              <tr><td>應用建議語彙</td><td>過度集中在論文/課程/研究</td><td>改為更中性的作品、流程、專業服務、資源與合作</td><td>命盤只提供傾向，實際應用需依個人現況、職涯與資源調整。</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    const items = [
+      {group:"ming", rate:"好", name:"紫微坐命酉宮", tag:"命宮底色", desc:"有主見、格局感、領導欲，不甘平凡。", mechanism:"紫微是帝星，坐命代表內在有主導局面與建立格局的需求。", advantage:"能定方向、抓大局、承擔責任，適合做研究主軸、專案主持、制度規劃。", risk:"高標準容易變成不放過自己，也可能在關係中不自覺主導。", actions:["把主導力用在制度與作品，不用在控制人。","重要合作先定共同目標。","定期檢查自己是否太用力。"]},
+      {group:"ming", rate:"差", name:"貪狼化忌坐命", tag:"命宮課題", desc:"慾望、感情、人際、名聲焦慮是人生卡點。", mechanism:"貪狼主欲望、才藝、人際吸引；化忌使其變成糾結與不滿足。", advantage:"若導入研究與創作，會變成驚人的鑽研力與跨界吸引力。", risk:"容易因被欣賞、被需要、被理解而投入過多。", actions:["感情、合作、金錢分開評估。","公開曝光用固定節奏，不靠情緒衝動。","把想證明自己改成累積作品。"]},
+      {group:"ming", rate:"可", name:"鈴星同命", tag:"爆發與波動", desc:"反應快、有爆發力，但容易急切與突發。", mechanism:"鈴星帶急促、爆發、突然轉折。", advantage:"適合抓時機、快速處理危機、突破停滯。", risk:"急著決定、急著相信、急著切割會增加損失。", actions:["重大決策隔夜再定。","用清單管理風險。","把急迫感導入短衝刺任務。"]},
+      {group:"ming", rate:"好", name:"火鈴貪格性", tag:"突發機會", desc:"有非線性收益與突然被看見的機會。", mechanism:"火鈴給爆發，貪狼給吸引力；有累積時會突然放大。", advantage:"適合平台、跨域、研究突破、內容、國際機會。", risk:"沒有風控時，會變成衝動投資、感情失控或財務波動。", actions:["先累積作品，再等放大。","高收益機會先設損失上限。","不高槓桿追機會。"]},
+      {group:"ming", rate:"優", name:"命財官殺破狼聯動", tag:"變動破局", desc:"命貪狼、財破軍化祿、官七殺，人生靠變動破局。", mechanism:"殺破狼代表變化、改革、開創與不安於現狀。", advantage:"適合跨域轉型、改革型研究、專案攻堅、處理混亂。", risk:"變動太多會難以累積，身心也容易耗。", actions:["每次變動都要留下資產。","只接高價值變動。","建立固定收入與健康節奏。"]},
+      {group:"ming", rate:"優", name:"天乙拱命", tag:"學識貴人", verified:"✓ 已驗證", desc:"天魁天鉞文曲支援，學術與制度貴人強。", structure:"遷移宮天魁、財帛宮天鉞，於三方四正會照命宮；文曲亦在遷移宮加強外部文書/學術資源。", application:"適合透過正式平台、申請、發表、審查制度、專業前輩與外部資源取得助力。", mechanism:"貴人星與文星會照命盤，代表被專業圈、長官、老師看見的機會。", advantage:"適合投稿、申請、學術發表、國際平台、正式制度。", risk:"悶著做不會發動，材料不完整也接不住貴人。", actions:["準備一頁式履歷。","定期發表成果。","請專業前輩審稿。"]},
+      {group:"ming", rate:"可", name:"科權夾命格", tag:"夾命需斟酌", verified:"⚠ 需斟酌", desc:"太陰化科與巨門化權夾命，但巨門陷且同地劫，宜下修為可。", structure:"命宮在酉，申宮太陰化科、戌宮巨門化權左右夾命；但戌宮巨門陷且同坐地劫，夾力不宜過度美化。", application:"可解讀為有論述、文書、學術與制度資源支援，但要靠文件品質與溝通策略修正權威摩擦。", mechanism:"科權夾命能提供名聲與話語權，但其中一側帶陷地與耗損星，力量會打折。", advantage:"適合用清楚論述、證據、文件與正式申請取得支持。", risk:"太直指問題、權威溝通摩擦、文件或承諾落差會削弱助力。", actions:["重要溝通先整理書面版本。","批判改成風險評估。","不要把此格當成無條件貴人。"]},
+      {group:"shen", rate:"優", name:"天府廟入身宮", tag:"40 後主軸", verified:"✓ 已驗證", desc:"中晚年重資源、資產、穩定、守成。", structure:"身宮在未，與夫妻宮同宮，天府廟坐守。這是 40 歲後行動模式與人生重心的重要依據。", application:"適合把能力轉成穩定資源、可持續合作、收入模式、生活秩序與可累積成果。", mechanism:"天府是庫，身宮代表後天行動與中晚年重心。", advantage:"能把前半生能力轉成制度、品牌、財庫、合作網。", risk:"若仍追求刺激，容易做很多但留不住。", actions:["建立作品庫、資料庫、財務庫。","把專案變成模板與案例。","以長期合作取代短期激情。"]},
+      {group:"shen", rate:"優", name:"日月夾身宮", tag:"晚運加分", desc:"太陽旺、太陰化科夾未宮身宮，形成中晚年明暗資源護航。", mechanism:"太陽是公開舞台、名望、職位與教學發表；太陰化科是研究、文書、學術名聲、女性貴人與資料品質。兩者夾身，讓天府身宮能承接台前與幕後兩種資源。", advantage:"40 歲後適合把專業拿到光下，同時用論文、履歷、研究計畫、作品集等高品質文件承接貴人與機會。", risk:"太陰同宮見火星，親近圈、女性同儕或私下合作仍可能有情緒壓力、臨時變動或暗中競爭。", actions:["公開舞台與幕後資料都要經營。","用作品集、研究摘要、履歷承接貴人。","合作界線、署名、成果歸屬要寫清楚。"]},
+      {group:"shen", rate:"優", name:"身宮府相系統", tag:"中晚年收成架構", desc:"天府廟坐身宮，天相在福德三合照身，比硬稱府相朝垣更精準。", mechanism:"天府是資源庫、財庫與守成能力；天相是制度、秩序、名聲與專業形象。兩者合成中晚年資源管理系統。", advantage:"能把名聲、研究、教學、專案與人脈轉成品牌、資產、固定合作、長期收入與可複製方法。", risk:"如果一直做新事但不整理、不合約化、不資產化，就會想穩卻不穩，做很多但留不住成果。", actions:["每個專案都留下案例、模板或方法論。","合作制度化，合約與分工清楚。","把研究與教學成果品牌化、課程化、資料庫化。"]},
+      {group:"shen", rate:"優", name:"文昌文曲三合照身", tag:"學術表達", desc:"文字、研究、發表、文件品質是開運工具。", mechanism:"昌曲在三合系統照身，使天府資源透過知識與文字被啟動。", advantage:"適合博士、論文、教學、課程、文化語言、專業內容。", risk:"只有會做但不會呈現，機會會被削弱。", actions:["建立研究履歷與作品集。","每個專案產出可公開版本。","重要文件找人校稿。"]},
+      {group:"shen", rate:"好", name:"華蓋入身宮", tag:"專精研究", desc:"學術、文化、精神性、專門技藝強。", mechanism:"華蓋帶孤高、專精、非主流知識、宗教哲思與藝術氣。", advantage:"適合深度研究、民族文化、語言、教育、哲學與專業寫作。", risk:"容易孤立、覺得別人不懂、不愛解釋。", actions:["保留高品質小圈子。","把孤獨變成研究深度。","固定輸出讓別人看懂你。"]},
+      {group:"shen", rate:"可", name:"天姚入身宮", tag:"魅力與界線", verified:"✓ 已驗證", desc:"40 歲後魅力、人緣與美感提升，但曖昧風險同等重要。", structure:"天姚在未宮身宮/夫妻宮，屬直接入身的桃花與審美星。", application:"可用於形象、表達、教學、服務、品牌氣質；但所有一對一關係都要清楚界線。", mechanism:"天姚帶情感吸引、審美、人際敏感度；入身宮會外顯成氣質。", advantage:"適合教學、演講、諮詢、文化推廣、個人品牌。", risk:"曖昧、界線不清、被欣賞牽動，因此評等下修為可。", actions:["感情與合作分清楚。","公開形象可柔和，私下權責要清楚。","不因被理解就快速信任。"]},
+      {group:"shen", rate:"可", name:"天哭入身宮", tag:"感傷與共情", verified:"✓ 已驗證", desc:"補上身宮原有的感傷、懷舊與情緒深度課題。", structure:"天哭在未宮身宮/夫妻宮，與天府、華蓋、天姚同宮，會讓身宮不只是穩定，也帶感受與情緒記憶。", application:"可轉成共情、敘事、文化記憶、生命經驗整理；但需避免沉溺過去或關係中的委屈感。", mechanism:"天哭帶感傷、懷舊、情緒釋放與對失落的敏感。", advantage:"適合用在寫作、訪談、教學、文化敘事、心理理解與生命故事整理。", risk:"容易想太多、感傷、被舊關係或過去經驗牽動。", actions:["把感受寫成紀錄或作品。","重大決策不要在低潮時做。","用固定支持系統承接情緒。"]},
+      {group:"shen", rate:"好", name:"身宮坐夫妻宮", tag:"關係影響晚運", verified:"✓ 已驗證", desc:"伴侶、合作、合約與長期關係會深刻影響下半生。", structure:"身宮與夫妻宮同在未宮，表示中晚年行動模式會被一對一關係、合作與伴侶品質牽動。", application:"穩定伴侶與高品質合作會讓晚運加分；模糊感情或責任不清會消耗資源。", mechanism:"身宮落夫妻宮，表示人生行動與資源配置會被一對一關係牽動。", advantage:"穩定伴侶與高品質合作會讓晚運加分。", risk:"低品質感情、曖昧合作、人情財務混線會耗損天府庫。", actions:["伴侶看責任感與財務觀。","合作要合約化。","不把情緒需求當決策依據。"]},
+      {group:"shen", rate:"可", name:"左輔右弼支援身宮", tag:"間接助力", verified:"⚠ 需斟酌", desc:"左輔右弼不是直接入身，也無身宮三合/夾鄰/對宮關係，宜下修為可。", structure:"左輔在父母宮戌，右弼在疾厄宮辰；兩者不與未宮身宮形成直接三合、夾鄰或對宮。", application:"可視為長輩、制度、照護、幕後協助等間接助力，不宜當成強力輔弼拱身。", mechanism:"輔弼仍可代表協作資源，但與身宮連結弱，判讀要保守。", advantage:"有機會透過長輩、制度位置、照護支援或幕後人力得到幫助。", risk:"若期待自動有人幫，容易失望；仍要靠制度分工。", actions:["把協作需求明確化。","不要過度依賴未驗證助力。","建立可交接的流程。"]},
+      {group:"career", rate:"優", name:"七殺入廟坐官祿", tag:"事業攻堅", desc:"決斷、競爭、開創、高壓任務能力強。", mechanism:"七殺入廟在官祿，事業重心落在攻堅、開局與面對競爭。", advantage:"適合改革、危機處理、專案主導、研究轉型、管理難題。", risk:"不耐慢、不耐模糊，容易與人硬碰硬。", actions:["接難題前確認權責。","用制度溝通。","避免為了證明自己硬扛。"]},
+      {group:"career", rate:"好", name:"廉貞坐官祿", tag:"制度管理", desc:"事業與規範、審查、權責、制度改革有關。", mechanism:"廉貞主界線、制度、管理、政治感與規範。", advantage:"適合行政管理、政策、審查、研究倫理、組織治理。", risk:"容易捲入權力角力或責任爭議。", actions:["所有決策留紀錄。","先談權責再談熱情。","避免口頭承諾。"]},
+      {group:"career", rate:"好", name:"擎羊入廟坐官祿", tag:"羊刃攻堅", desc:"刀鋒型事業力，能切問題、做決斷。", mechanism:"擎羊為羊刃，入廟則鋒利可用，落官祿代表事業靠硬實力。", advantage:"適合風險判斷、制度切割、棘手問題、專業權威。", risk:"說話太直、得罪人、衝突升高。", actions:["用資料出刀，不用情緒出刀。","先給台階再提問題。","合約與邊界要細。"]},
+      {group:"career", rate:"優", name:"43-52 大限走官祿", tag:"本命官祿被啟動", verified:"✓ 已驗證", desc:"以虛歲看已入 43-52 大限；以西曆實歲看 2026/9/1 才滿 43。", structure:"目前大限走丑宮，本命官祿宮同在丑宮，廉貞、七殺廟、擎羊廟被啟動。年齡需區分虛歲與西曆實歲。", application:"這十年適合事業定位重整、攻堅、制度型任務與專業權威建立；實際時間感可用虛歲/實歲並看。", mechanism:"大限走到本命官祿宮，會放大廉殺羊的攻堅特質。", advantage:"能接高難度任務、建立名聲、開新方向。", risk:"壓力、衝突、制度審查、過勞。", actions:["接高價值難題。","每次攻堅都留下案例。","讓身宮天府收成。"]},
+      {group:"all", rate:"優", name:"命宮破局 → 身宮收成", tag:"總流程", desc:"這是全盤最核心的轉換。", mechanism:"命宮提供火力，身宮提供容器。前半生強在衝，後半生強在收。", advantage:"能從開創者轉為有作品、有系統、有資源的人。", risk:"若不轉型，會一直重複焦慮式衝刺。", actions:["每個目標都問是否可累積。","成果資產化。","關係穩定化。"]},
+      {group:"all", rate:"差", name:"最大破綻：欲望焦慮帶入決策", tag:"避險核心", desc:"貪狼化忌坐命加廉殺羊事業，最怕焦慮下決策。", mechanism:"命宮欲望深，事業宮刀鋒強，若情緒推動，容易做過度承諾。", advantage:"看見破綻後，反而能轉成精準風控能力。", risk:"衝動合作、曖昧關係、投資過快、過度證明自己。", actions:["72 小時冷卻期。","找第三方看合約。","感情合作金錢分開。"]},
+      {group:"all", rate:"優", name:"最強策略：專業資產化", tag:"開運方法", desc:"把研究、教學、顧問、文化語言能力變成可累積資產。", mechanism:"天府身宮需要庫，昌曲需要作品，天乙需要正式平台。", advantage:"最能啟動身宮漸入佳境。", risk:"只做單次任務、不整理、不公開，會漏掉貴人。", actions:["建立專業網站或作品集。","整理課程與案例。","每年固定發表或申請。"]}
+    ];
+    let currentGroup = "ming";
+    let currentFilter = "全部";
+    function render(){
+      ["ming","shen","career","all"].forEach(g=>{
+        const grid=document.getElementById("grid-"+g); grid.innerHTML="";
+        items.filter(i=>i.group===g && (currentFilter==="全部" || i.rate===currentFilter)).forEach(i=>{
+          const b=document.createElement("button"); b.className="card"; b.dataset.rate=i.rate;
+          const verified = i.verified || "✓ 已驗證";
+          const warnClass = verified.includes("需斟酌") ? " warn" : "";
+          b.innerHTML=`<span class="rate r-${i.rate}">${i.rate}</span><span class="verify${warnClass}">${verified}</span><strong>${i.name}</strong><small>${i.tag}</small><small>${i.desc}</small>`;
+          b.onclick=()=>show(i); grid.appendChild(b);
+        });
+      });
+    }
+    function show(i){
+      document.getElementById("kicker").textContent=i.tag+"｜評等："+i.rate;
+      document.getElementById("title").textContent=i.name;
+      document.getElementById("desc").textContent=i.desc;
+      document.getElementById("structure").textContent=i.structure || i.mechanism;
+      document.getElementById("application").textContent=i.application || i.advantage;
+      document.getElementById("risk").textContent=i.risk;
+      const ul=document.getElementById("actions"); ul.innerHTML="";
+      i.actions.forEach(a=>{const li=document.createElement("li");li.textContent=a;ul.appendChild(li);});
+    }
+    document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+      currentGroup=t.dataset.view;
+      document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active")); t.classList.add("active");
+      document.querySelectorAll(".view").forEach(v=>v.classList.remove("active")); document.getElementById(currentGroup).classList.add("active");
+    });
+    document.querySelectorAll(".filter").forEach(f=>f.onclick=()=>{
+      currentFilter=f.dataset.filter;
+      document.querySelectorAll(".filter").forEach(x=>x.classList.remove("active")); f.classList.add("active");
+      render();
+    });
+    render();
+  </script>
+</body>
+</html>
