@@ -31,7 +31,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const TEACHER_PASSWORD_HASH = "df612fc30bcb3b565c62e10ddef450a000ab559185a70f2f5072aa4b21207bd8";
+  const TEACHER_PASSWORD_HASH = "07c4b46160c71a2135063b4c47638ce816fc99968dbce0e52faec985bbbb27fd";
 
   async function sha256Text(text) {
     const data = new TextEncoder().encode(text);
@@ -1813,6 +1813,8 @@ function verifyTeacherPwd() {
 
   const pwd = input.value;
   if (pwd === '0901') { // 這裡設定密碼
+    sessionStorage.setItem('amisTeacherUnlocked', '1');
+    document.body.classList.add('teacher-unlocked');
     closePwdModal();
     enterMode('teacher');
   } else {
