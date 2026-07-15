@@ -926,6 +926,11 @@ body.exam-open.teacher-unlocked #system-lock-btn { display: inline-flex; align-i
       <h3>老師頭目</h3>
       <p>統一派發指令與計時</p>
     </div>
+    <div class="mode-card" onclick="openPwdModal('split')">
+      <div class="icon">MON</div>
+      <h3>老師監控版</h3>
+      <p>左側控制台，右側同步看學生畫面</p>
+    </div>
     <div class="mode-card" onclick="enterMode('student')">
       <div class="icon">👦🏽</div>
       <h3>部落學生 (同步)</h3>
@@ -1783,9 +1788,11 @@ const STORY_TASKS = [
 
 let currentMode = null;
 let isSplitActive = false;
+let pendingTeacherMode = 'normal';
 
 // 新增：密碼鎖控制邏輯 (加入強力 null 防護)
-function openPwdModal() {
+function openPwdModal(mode = 'normal') {
+  pendingTeacherMode = mode;
   const modal = document.getElementById('pwd-modal');
   const input = document.getElementById('teacher-pwd-input');
   const err = document.getElementById('pwd-error');
@@ -1816,6 +1823,9 @@ function verifyTeacherPwd() {
     document.body.classList.add('teacher-unlocked');
     closePwdModal();
     enterMode('teacher');
+    if (pendingTeacherMode === 'split' && !isSplitActive) {
+      setTimeout(() => window.toggleSplitView(), 0);
+    }
   } else {
     if (err) err.style.display = 'block';
     input.value = '';
