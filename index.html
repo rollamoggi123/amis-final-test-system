@@ -885,9 +885,97 @@ body.exam-open #teacher-gate { display: none !important; }
 }
 body.exam-open.teacher-unlocked #system-lock-btn { display: inline-flex; align-items: center; justify-content: center; }
 
+
+body.site-locked > :not(#site-password-gate) {
+  display: none !important;
+}
+#site-password-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--ink);
+  color: var(--ink);
+}
+#site-password-gate.is-hidden {
+  display: none;
+}
+.password-card {
+  width: min(100%, 460px);
+  background: var(--surface);
+  border: 4px solid var(--sun);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2rem;
+  text-align: center;
+}
+.password-card h1 {
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 900;
+  margin-bottom: .75rem;
+  color: var(--text);
+  line-height: 1.15;
+}
+.password-card p {
+  color: var(--text2);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.7;
+  margin-bottom: 1.25rem;
+}
+.password-card input {
+  width: 100%;
+  border: 4px solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 900;
+  outline: none;
+}
+.password-card input:focus {
+  border-color: var(--sun);
+}
+.password-card button {
+  width: 100%;
+  margin-top: 1rem;
+  border: 4px solid var(--ink);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  background: var(--sun);
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+}
+.password-card button:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+#password-error {
+  min-height: 1.5rem;
+  margin-top: .85rem;
+  color: var(--danger);
+  font-weight: 900;
+}
 </style>
 </head>
-<body>
+<body class="site-locked">
+
+<div id="site-password-gate" role="dialog" aria-modal="true" aria-labelledby="password-title">
+  <form class="password-card" id="password-form">
+    <div style="font-size:3.5rem;margin-bottom:.75rem;">🔒</div>
+    <h1 id="password-title">期末測驗目前未開放</h1>
+    <p>請輸入老師提供的密碼後進入期末測驗系統。</p>
+    <input id="site-password-input" type="password" placeholder="請輸入密碼" autocomplete="current-password" autofocus>
+    <button type="submit">進入網站</button>
+    <div id="password-error" aria-live="polite"></div>
+  </form>
+</div>
   <section id="teacher-gate" aria-label="教師重啟考試系統">
     <main class="gate-card">
       <div class="gate-badge">阿美族語基礎班</div>
@@ -3092,6 +3180,49 @@ window.stopRec = id => {
     if (!confirm('確定要關閉考試系統嗎？學生端將回到關閉頁。')) return;
     await window.teacherCloseSystem();
   });
+})();
+</script>
+<script>
+(function () {
+  const SITE_PASSWORD = '0901';
+  const STORAGE_KEY = 'final-amis-test-unlocked';
+  const body = document.body;
+  const gate = document.getElementById('site-password-gate');
+  const form = document.getElementById('password-form');
+  const input = document.getElementById('site-password-input');
+  const error = document.getElementById('password-error');
+
+  function unlockSite() {
+    body.classList.remove('site-locked');
+    if (gate) gate.classList.add('is-hidden');
+  }
+
+  try {
+    if (localStorage.getItem(STORAGE_KEY) === 'true') {
+      unlockSite();
+      return;
+    }
+  } catch (e) {
+    // Continue without persistent unlock if storage is unavailable.
+  }
+
+  if (form && input && error) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (input.value.trim() === SITE_PASSWORD) {
+        try {
+          localStorage.setItem(STORAGE_KEY, 'true');
+        } catch (e) {
+          // Ignore storage errors and unlock for this page view.
+        }
+        unlockSite();
+        return;
+      }
+      error.textContent = '密碼錯誤，目前網站尚未開放。';
+      input.value = '';
+      input.focus();
+    });
+  }
 })();
 </script>
 </body>
